@@ -23,7 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
 //start app
-const port = 5050;
+const port = 6050;
 
 app.listen(port, () => console.log(`App is listening on port ${port}.`));
 
