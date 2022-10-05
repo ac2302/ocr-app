@@ -34,7 +34,7 @@ function App() {
 			);
 
 			axios
-				.post("https://ocr-backend.ieeetechithon.com/ocr", formdata, {
+				.post("http://localhost:6050/ocr", formdata, {
 					headers: {
 						"Content-Type": "multipart/form-data",
 					},
@@ -42,7 +42,11 @@ function App() {
 				.then((res) => {
 					console.log(res.data);
 					setLoading(false);
-					setResult(res.data.text);
+					const detectedText = res.data.text;
+					console.log(detectedText.length);
+					detectedText.length > 1
+						? setResult(detectedText)
+						: setResult("No Text Detected");
 				});
 
 			// setLoading(false);
@@ -52,36 +56,53 @@ function App() {
 
 	return (
 		<>
-			<input
-				type="file"
-				id="file-input"
-				name="image"
-				accept="image/*"
-				onChange={(e) => {
-					setFilePath(e.target.value);
-					const reader = new FileReader();
-					reader.onload = function () {
-						setFile(reader.result);
-					};
-					reader.readAsDataURL(e.target.files[0]);
-				}}
-			/>
+			<div className="container">
+				<input
+					type="file"
+					id="file-input"
+					name="image"
+					accept="image/*"
+					style={{ display: file ? "none" : "block" }}
+					onChange={(e) => {
+						setFilePath(e.target.value);
+						const reader = new FileReader();
+						reader.onload = function () {
+							setFile(reader.result);
+						};
+						reader.readAsDataURL(e.target.files[0]);
+					}}
+				/>
 
-			{file && <img height={200} src={file} />}
+				{file && (
+					<img className="display-image" height={200} src={file} />
+				)}
 
-			{loading && (
-				<>
-					<hr />
-					<h4>loading...</h4>
-				</>
-			)}
+				<div className="results">
+					{loading && (
+						<>
+							<h4>loading...</h4>
+						</>
+					)}
 
-			{result && (
-				<>
-					<hr />
-					<pre>{result}</pre>
-				</>
-			)}
+					{result && (
+						<>
+							<pre>{result}</pre>
+							<button
+								onClick={() => {
+									const cb = navigator.clipboard;
+									const element =
+										document.querySelector("pre");
+									cb.writeText(element.innerText).then(() =>
+										alert("Text copied")
+									);
+								}}
+							>
+								copy
+							</button>
+						</>
+					)}
+				</div>
+			</div>
 		</>
 	);
 }
